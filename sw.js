@@ -1,4 +1,4 @@
-const CACHE = 'weight-journal-v1';
+const CACHE = 'weight-journal-v2';
 const ASSETS = ['./','./index.html','./style.css','./app.js','./data.js','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('weight-journal-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
