@@ -29,3 +29,7 @@ input[type="date"]::-webkit-datetime-edit { padding: 0; min-width: 0; }
   header { flex-wrap: wrap; gap: 12px; }
   .chart-card .periods { width: 100%; }
 }
+
+/* The SVG viewBox matches its container width; height does not shrink on phones. */
+svg.chart { height: 280px; }
+#chart, #chart .empty { min-height: 280px; }

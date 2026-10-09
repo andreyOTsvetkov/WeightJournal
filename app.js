@@ -19,11 +19,13 @@ function renderChart(end){const host=$('#chart');host.replaceChildren();const av
   const dates=new Set();for(const r of available.filter(r=>r.date>=shift(start,-6)))for(let i=0;i<7;i++){const d=shift(r.date,i);if(d>=start&&d<=end)dates.add(d);}
   const means=[...dates].sort().map(date=>({date,weight:average(available,date,7).value}));
   const values=[...visible,...means].map(r=>r.weight);let low=Math.min(...values),high=Math.max(...values);const pad=Math.max((high-low)*.2,.5);low-=pad;high+=pad;
-  const W=860,H=290,L=55,R=18,T=18,B=40,span=Math.max(DAY,Date.parse(end)-Date.parse(start));const x=d=>L+(Date.parse(d)-Date.parse(start))/span*(W-L-R);const y=w=>T+(high-w)/(high-low)*(H-T-B);
+  const W=Math.max(1,host.clientWidth),H=280,L=54,R=12,T=18,B=36,span=Math.max(DAY,Date.parse(end)-Date.parse(start));const x=d=>L+(Date.parse(d)-Date.parse(start))/span*(W-L-R);const y=w=>T+(high-w)/(high-low)*(H-T-B);
   const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.classList.add('chart');svg.setAttribute('role','img');svg.setAttribute('aria-label',`График веса: ${dateLabel(start)} — ${dateLabel(end)}. Точные значения доступны в таблице записей.`);
   const add=(tag,attrs,text)=>{const el=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))el.setAttribute(k,v);if(text!==undefined)el.textContent=text;svg.append(el);return el;};
-  for(let i=0;i<5;i++){const value=low+(high-low)*i/4,cy=y(value);add('line',{x1:L,y1:cy,x2:W-R,y2:cy,stroke:'#edf0e9'});add('text',{x:L-10,y:cy+4,'text-anchor':'end',fill:'#819085','font-size':11},number(value));}
-  for(let i=0;i<4;i++){const d=shift(start,Math.round((Date.parse(end)-Date.parse(start))/DAY*i/3));if(i&&d===start)continue;add('text',{x:x(d),y:H-10,'text-anchor':i===0?'start':i===3?'end':'middle',fill:'#819085','font-size':11},dateLabel(d));}
+  for(let i=0;i<5;i++){const value=low+(high-low)*i/4,cy=y(value);add('line',{x1:L,y1:cy,x2:W-R,y2:cy,stroke:'#edf0e9'});add('text',{x:L-10,y:cy+4,'text-anchor':'end',fill:'#64786b','font-size':12},number(value));}
+  const intervals=W<400?2:3;
+  let previousTick;
+  for(let i=0;i<=intervals;i++){const d=shift(start,Math.round((Date.parse(end)-Date.parse(start))/DAY*i/intervals));if(d===previousTick)continue;previousTick=d;add('text',{x:x(d),y:H-10,'text-anchor':i===0?'start':i===intervals?'end':'middle',fill:'#64786b','font-size':12},dateLabel(d));}
   add('polyline',{points:visible.map(r=>`${x(r.date)},${y(r.weight)}`).join(' '),fill:'none',stroke:'#315e4c','stroke-width':2.5,'stroke-linejoin':'round'});
   let path='';means.forEach((r,i)=>{const gap=!i||Date.parse(r.date)-Date.parse(means[i-1].date)>DAY;path+=`${gap?'M':'L'}${x(r.date)} ${y(r.weight)} `;});add('path',{d:path,fill:'none',stroke:'#a5b875','stroke-width':2.5,'stroke-dasharray':'5 5'});
   for(const r of visible){const dot=add('circle',{cx:x(r.date),cy:y(r.weight),r:4,fill:'#315e4c',stroke:'#fff','stroke-width':2});const title=document.createElementNS(ns,'title');title.textContent=`${r.date}: ${number(r.weight)} кг`;dot.append(title);}host.append(svg);
@@ -33,4 +35,12 @@ $('#import').onclick=()=>$('#csv-file').click();
 $('#csv-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2*1024*1024)throw new Error('Максимальный размер CSV — 2 МБ.');const imported=fromCSV(await file.text());const overlaps=imported.filter(r=>records.some(x=>x.date===r.date)).length;if(overlaps&&!confirm(`Импорт обновит записи за ${overlaps} дат. Продолжить?`))return;if(save([...records,...imported]))notice(`Импортировано записей: ${imported.length}.`);}catch(error){notice(error.message,true);}finally{e.target.value='';}};
 window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){try{records=normalize(JSON.parse(localStorage.getItem(KEY)||'[]'));storageBroken=false;render();}catch{storageBroken=true;notice('Данные изменились в другой вкладке, но не удалось их прочитать.',true);}}});
 render();
+// Rebuild the SVG at its actual width so labels and lines stay readable.
+let chartWidth = $('#chart').clientWidth;
+new ResizeObserver(() => {
+  const width = $('#chart').clientWidth;
+  if (width === chartWidth || !width) return;
+  chartWidth = width;
+  renderChart(validDate($('#as-of').value) ? $('#as-of').value : today());
+}).observe($('#chart'));
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(()=>notice('Офлайн-режим недоступен. Откройте приложение по HTTPS или через localhost.',true));
