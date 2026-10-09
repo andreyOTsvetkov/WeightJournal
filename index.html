@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <meta name="description" content="Личный дневник веса. Данные хранятся только на вашем устройстве.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Вес · личный дневник</title>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">ЛИЧНЫЙ ДНЕВНИК</p><h1>Вес<span>.</span></h1><p class="muted">Маленькие шаги. Большая картина.</p></div><span class="local-badge">Только на устройстве</span></header>
+    <section class="card" aria-labelledby="entry-title">
+      <h2 id="entry-title">Добавить запись</h2>
+      <form id="entry-form">
+        <label>Дата<input id="entry-date" type="date" required></label>
+        <label>Вес, кг<input id="entry-weight" type="text" inputmode="decimal" placeholder="Например, 72,5" required maxlength="10"></label>
+        <button type="submit">Сохранить запись <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="hint">Одна запись в день. Повторное сохранение обновит вес за эту дату.</p>
+    </section>
+    <div class="section-heading"><h2>Ваша динамика</h2><label class="as-of">На дату <input id="as-of" type="date" required></label></div>
+    <section class="stats" aria-label="Статистика">
+      <article class="card"><p class="stat-label">Среднее за 7 дней</p><p class="stat-value" id="average-7">—</p><p class="hint" id="range-7"></p></article>
+      <article class="card"><p class="stat-label">Среднее за 30 дней</p><p class="stat-value" id="average-30">—</p><p class="hint" id="range-30"></p></article>
+      <article class="card"><p class="stat-label">Тренд за неделю</p><p class="stat-value" id="trend">—</p><p class="hint" id="trend-detail">По сравнению с предыдущими 7 днями</p></article>
+    </section>
+    <section class="card chart-card" aria-labelledby="chart-title">
+      <div class="section-heading"><h2 id="chart-title">График веса</h2><div class="periods" role="group" aria-label="Период графика"><button type="button" data-period="7" aria-pressed="false">7 дней</button><button type="button" data-period="30" aria-pressed="true">30 дней</button><button type="button" data-period="all" aria-pressed="false">Всё время</button></div></div>
+      <div class="legend"><span><i class="dot weight"></i>Вес</span><span><i class="dot mean"></i>Среднее за 7 дней</span></div>
+      <div id="chart"></div>
+      <p class="hint">Среднее рассчитано по имеющимся записям за 7 календарных дней. Пропущенные дни не считаются нулём. Период заканчивается выбранной датой.</p>
+    </section>
+    <section class="card" aria-labelledby="history-title">
+      <div class="section-heading"><h2 id="history-title">Записи <span id="count" class="count">0</span></h2><div class="file-actions"><button id="export" class="secondary" type="button">↓ Экспорт CSV</button><button id="import" class="secondary" type="button">↑ Импорт CSV</button><input id="csv-file" type="file" accept=".csv,text/csv" hidden></div></div>
+      <p class="hint">CSV: date,weight — дата ГГГГ-ММ-ДД и вес в кг. При импорте совпадающие даты обновляются.</p>
+      <div id="history"></div>
+    </section>
+    <footer>Без аккаунта и сервера. Делайте экспорт: очистка данных браузера удалит дневник.</footer>
+    <p id="status" role="status" aria-live="polite" hidden></p>
+  </main>
+</body>
+</html>
