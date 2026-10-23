@@ -33,3 +33,12 @@ input[type="date"]::-webkit-datetime-edit { padding: 0; min-width: 0; }
 /* The SVG viewBox matches its container width; height does not shrink on phones. */
 svg.chart { height: 280px; }
 #chart, #chart .empty { min-height: 280px; }
+
+[hidden] { display: none !important; }
+.journal-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.journal-tabs button { flex: 1; background: #e9eee3; color: #294f40; }
+.journal-tabs button[aria-pressed="true"] { background: #294f40; color: white; }
+#waist-chart { min-height: 280px; margin-top: 20px; }
+#waist-chart .empty { min-height: 280px; }
+#waist-status { color: #294f40; font-size: 14px; }
+#waist-status.error { color: #8d403a; }

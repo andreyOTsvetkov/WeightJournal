@@ -7,7 +7,7 @@ export function parseWeight(value) { const s = String(value).trim().replace(',',
 export function average(records, end, days) { const start = shift(end, 1-days); const values = records.filter(r => r.date >= start && r.date <= end); return { value: values.length ? values.reduce((n,r) => n+r.weight,0)/values.length : null, count: values.length, start, end }; }
 export function normalize(records) { if (!Array.isArray(records)) throw new Error('Неверный формат данных.'); const map = new Map(); for (const r of records) { if (!r || !validDate(r.date) || !validWeight(r.weight)) throw new Error('Неверная дата или вес.'); map.set(r.date,{date:r.date,weight:r.weight}); } return [...map.values()].sort((a,b) => a.date.localeCompare(b.date)); }
 export function toCSV(records) { return '\uFEFFdate,weight\r\n' + records.map(r => `${r.date},${r.weight}`).join('\r\n') + '\r\n'; }
-export function fromCSV(text) {
+export function fromCSV(text, column = 'weight') {
   text = text.replace(/^\uFEFF/,'');
   const first = text.split(/\r?\n/)[0]; const sep = first.includes(';') ? ';' : ',';
   const rows=[]; let row=[], field='', quoted=false, closed=false;
@@ -19,7 +19,7 @@ export function fromCSV(text) {
   }
   if(quoted) throw new Error('Незакрытые кавычки в CSV.');
   row.push(field); if(row.some(v=>v.trim()))rows.push(row);
-  if(!rows.length || rows[0].length!==2 || rows[0][0].trim().toLowerCase()!=='date' || rows[0][1].trim().toLowerCase()!=='weight') throw new Error('Ожидаются столбцы date,weight.');
+  if(!rows.length || rows[0].length!==2 || rows[0][0].trim().toLowerCase()!=='date' || rows[0][1].trim().toLowerCase()!==column) throw new Error(`Ожидаются столбцы date,${column}.`);
   if(rows.length===1) throw new Error('В файле нет записей.');
-  return normalize(rows.slice(1).map((r,i)=> {const date=r[0].trim(),weight=parseWeight(r[1]);if(r.length!==2 || !validDate(date) || !validWeight(weight))throw new Error(`Строка ${i+2}: нужна дата ГГГГ-ММ-ДД и вес от 0 до 1000 кг (не включая 0).`);return {date,weight};}));
+  return normalize(rows.slice(1).map((r,i)=> {const date=r[0].trim(),weight=parseWeight(r[1]);if(r.length!==2 || !validDate(date) || !validWeight(weight))throw new Error(`Строка ${i+2}: нужна дата ГГГГ-ММ-ДД и значение от 0 до 1000 (не включая 0).`);return {date,weight};}));
 }

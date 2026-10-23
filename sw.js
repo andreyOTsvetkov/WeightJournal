@@ -1,5 +1,5 @@
-const CACHE = 'weight-journal-v4';
-const ASSETS = ['./','./index.html','./style.css','./app.js','./data.js','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
+const CACHE = 'weight-journal-v5';
+const ASSETS = ['./','./index.html','./style.css','./app.js','./data.js','./waist.js','./waist-data.js','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png'];
 const assetURLs = new Set(ASSETS.map(path => new URL(path, self.registration.scope).href));
 
 self.addEventListener('install', event => {
